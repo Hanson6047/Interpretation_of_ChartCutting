@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>增強型RAG問答系統</title>
+    <link rel="stylesheet" href="/static/enhanced_style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 登入頁面 -->
+        <div id="loginPage" class="page active">
+            <div class="login-container">
+                <h1>🤖 增強型RAG問答系統</h1>
+                <p class="subtitle">支援圖文混合的智能問答</p>
+                
+                <div class="auth-forms">
+                    <!-- 登入表單 -->
+                    <div id="loginForm" class="form-container active">
+                        <h2>登入</h2>
+                        <form id="loginSubmit">
+                            <input type="text" id="loginUsername" placeholder="使用者名稱" required>
+                            <input type="password" id="loginPassword" placeholder="密碼" required>
+                            <button type="submit">登入</button>
+                        </form>
+                        <p class="switch-form">
+                            還沒有帳號？ <a href="#" onclick="showRegister()">註冊</a>
+                        </p>
+                    </div>
+                    
+                    <!-- 註冊表單 -->
+                    <div id="registerForm" class="form-container">
+                        <h2>註冊</h2>
+                        <form id="registerSubmit">
+                            <input type="text" id="registerUsername" placeholder="使用者名稱" required>
+                            <input type="email" id="registerEmail" placeholder="電子信箱（選填）">
+                            <input type="password" id="registerPassword" placeholder="密碼" required>
+                            <button type="submit">註冊</button>
+                        </form>
+                        <p class="switch-form">
+                            已有帳號？ <a href="#" onclick="showLogin()">登入</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主頁面 -->
+        <div id="mainPage" class="page">
+            <header class="header">
+                <h1>🤖 增強型RAG問答系統</h1>
+                <div class="header-controls">
+                    <button id="statsBtn" class="btn-secondary">📊 統計</button>
+                    <button id="chartsBtn" class="btn-secondary">📈 圖表庫</button>
+                    <button id="logoutBtn" class="btn-danger">登出</button>
+                </div>
+            </header>
+
+            <main class="main-content">
+                <!-- 系統狀態 -->
+                <div id="systemStatus" class="status-panel">
+                    <div class="status-item">
+                        <span class="status-label">系統狀態:</span>
+                        <span id="systemStatusText" class="status-value">未初始化</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">圖表數量:</span>
+                        <span id="chartsCount" class="status-value">-</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">LLM提供者:</span>
+                        <span id="llmProvider" class="status-value">-</span>
+                    </div>
+                    <button id="initBtn" class="btn-primary">🚀 初始化系統</button>
+                </div>
+
+                <!-- 問答區域 -->
+                <div class="chat-container">
+                    <div id="chatHistory" class="chat-history">
+                        <div class="welcome-message">
+                            <h3>歡迎使用增強型RAG問答系統！</h3>
+                            <p>本系統支援圖文混合問答，能夠：</p>
+                            <ul>
+                                <li>📖 理解文字內容</li>
+                                <li>📊 分析圖表資訊</li>
+                                <li>🔗 關聯圖文內容</li>
+                                <li>💡 提供完整解答</li>
+                            </ul>
+                            <p>請先點擊「初始化系統」按鈕，然後開始提問！</p>
+                        </div>
+                    </div>
+
+                    <div class="input-area">
+                        <div class="input-container">
+                            <textarea id="questionInput" placeholder="請輸入您的問題..." rows="3" disabled></textarea>
+                            <button id="sendBtn" class="send-btn" disabled>
+                                <span>發送</span>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- 統計頁面 -->
+        <div id="statsPage" class="page">
+            <header class="header">
+                <h1>📊 系統統計</h1>
+                <button id="backFromStatsBtn" class="btn-secondary">← 返回</button>
+            </header>
+            <div id="statsContent" class="stats-content">
+                <!-- 統計內容將由JavaScript動態載入 -->
+            </div>
+        </div>
+
+        <!-- 圖表庫頁面 -->
+        <div id="chartsPage" class="page">
+            <header class="header">
+                <h1>📈 圖表庫</h1>
+                <button id="backFromChartsBtn" class="btn-secondary">← 返回</button>
+            </header>
+            <div id="chartsContent" class="charts-content">
+                <!-- 圖表內容將由JavaScript動態載入 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 載入指示器 -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>處理中...</p>
+    </div>
+
+    <script src="/static/enhanced_script.js"></script>
+</body>
+</html>
