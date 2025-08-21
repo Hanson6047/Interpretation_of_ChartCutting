@@ -12,7 +12,7 @@ import json
 from datetime import datetime
 
 # 導入LLM提供者
-from llm_providers_sB import LLMManager, LLMRequest
+from enhanced_version.backend.llm_providers_sB import LLMManager, LLMRequest
 
 @dataclass
 class DescriptionRequest:

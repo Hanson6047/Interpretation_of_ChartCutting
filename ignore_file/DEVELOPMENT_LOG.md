@@ -976,4 +976,59 @@ enhanced_version/
 
 ---
 
+## 📅 2024-08-21 (星期三)
+
+### 🎯 今日目標
+- [x] 修正階段A測試檔案的路徑和import問題
+- [x] 確保所有測試檔案可以正常運行
+- [x] 更新修正後的檔案到GitHub
+- [x] 分析階段C的實作需求
+
+### 💻 程式改動
+#### 修改檔案
+- `test_stage_A_complete.py` - 修正import路徑和PDF檔案路徑
+  - 改用動態路徑計算 `Path(__file__).parent`
+  - 修正模組匯入路徑為相對路徑
+  - 添加UTF-8編碼處理
+- `test_stage_A_enhanced_units.py` - 修正多檔案測試功能
+  - 修正import路徑問題
+  - 更新結果處理邏輯以符合實際API
+  - 簡化測試流程，跳過過時的模式測試
+- `test_caption_extractor_units.py` - 修正單元測試檔案
+  - 修正模組匯入路徑
+  - 確保正則表達式測試正常運作
+- `test_stage_A_validation_complete.py` - 修正驗證測試檔案
+  - 修正主函數和互動式驗證的import路徑
+  - 更新PDF檔案路徑為動態計算
+
+### 🧪 測試結果
+- ✅ `test_stage_A_complete.py` - 成功識別29個caption配對
+- ✅ `test_stage_A_enhanced_units.py` - 支援多檔案測試，功能正常
+- ✅ `test_caption_extractor_units.py` - 3個單元測試全部通過
+- ✅ `test_stage_A_validation_complete.py` - 驗證功能正常運作
+
+### 📊 進度狀態
+- ✅ 階段A測試檔案全面修正完成
+- ✅ 跨平台相容性問題解決
+- ✅ 所有組員現在可以直接運行測試
+- ✅ Git子模組更新推送完成
+- 🔄 開始準備階段C的開發工作
+
+### 🎯 明日計劃
+- [ ] 深入了解階段C的架構和實作細節
+- [ ] 分析現有的enhanced_rag_helper_sC.py程式碼
+- [ ] 設計階段C的測試策略
+- [ ] 規劃與主RAG系統的整合方案
+
+### 💭 開發筆記
+- 所有階段A測試現在都使用動態路徑計算，不依賴特定用戶環境
+- UTF-8編碼問題已解決，emoji可正常顯示
+- 發現階段A的Caption識別功能表現良好：
+  - 計概第一章：29個配對 (27圖片, 2表格)
+  - 計概第二章：21個配對 (16圖片, 5表格)
+  - 信心度範圍：0.3-0.7，平均約0.5-0.65
+- 階段A已達到可支援階段C開發的水準
+
+---
+
 *📝 本日誌將持續更新，記錄每日的開發進度和技術決策...*

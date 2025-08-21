@@ -15,9 +15,6 @@ from dataclasses import dataclass, asdict
 from datetime import datetime
 
 # LangChain 相關套件
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import FAISS
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
@@ -25,8 +22,13 @@ from langchain_core.documents import Document
 
 # 導入我們的模組
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-from caption_extractor_sA import PDFCaptionContextProcessor
-from llm_description_generator_v2_sB import LLMDescriptionGeneratorV2, DescriptionRequest
+from enhanced_version.backend.caption_extractor_sA import PDFCaptionContextProcessor
+from enhanced_version.backend.llm_description_generator_v2_sB import LLMDescriptionGeneratorV2, DescriptionRequest
+
+# 導入組長的RAG Helper
+project_root = Path(__file__).parent.parent.parent.parent.parent
+sys.path.append(str(project_root))
+from RAG_Helper import RAGHelper
 
 @dataclass
 class ChartMetadata:
@@ -55,15 +57,22 @@ class EnhancedRAGHelper:
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
         
-        # RAG 組件
+        # 初始化組長的RAG Helper
+        self.rag_helper = RAGHelper(
+            pdf_folder=pdf_folder,
+            chunk_size=chunk_size, 
+            chunk_overlap=chunk_overlap
+        )
+        
+        # RAG 組件 (委託給RAG Helper)
         self.vectorstore = None
         self.retrieval_chain = None
         
-        # 圖表處理組件
+        # 圖表處理組件 (Enhanced RAG Helper專屬)
         self.caption_processor = PDFCaptionContextProcessor()
         self.description_generator = LLMDescriptionGeneratorV2("mock")
         
-        # 圖表資料庫
+        # 圖表資料庫 (Enhanced RAG Helper專屬)
         self.chart_metadata: Dict[str, ChartMetadata] = {}
         self.enhanced_documents: List[EnhancedDocument] = []
         
@@ -97,11 +106,11 @@ class EnhancedRAGHelper:
                         related_context.append(ctx.surrounding_text[:200])
             
             request = DescriptionRequest(
-                caption_text=caption.title,
+                caption_text=caption.text,
                 caption_type=caption.caption_type,
                 caption_number=caption.number,
                 related_context=related_context,
-                page_number=caption.page
+                page_number=caption.page_number
             )
             description_requests.append(request)
         
@@ -186,21 +195,13 @@ class EnhancedRAGHelper:
         return enhanced_docs
     
     def load_and_prepare_enhanced(self, rebuild_index: bool = False):
-        """載入並準備增強型向量資料庫"""
+        """載入並準備增強型向量資料庫 - 委託給RAG Helper處理向量化"""
         
-        enhanced_index_path = "enhanced_faiss_index"
         metadata_path = "chart_metadata.json"
         
         # 檢查是否需要重建索引
-        if not rebuild_index and os.path.exists(enhanced_index_path) and os.path.exists(metadata_path):
-            self.logger.info("載入現有的增強型向量資料庫...")
-            
-            # 載入向量資料庫
-            self.vectorstore = FAISS.load_local(
-                enhanced_index_path,
-                OpenAIEmbeddings(model="text-embedding-3-small"),
-                allow_dangerous_deserialization=True
-            )
+        if not rebuild_index and os.path.exists(metadata_path):
+            self.logger.info("載入現有的圖表元數據...")
             
             # 載入圖表元數據
             with open(metadata_path, 'r', encoding='utf-8') as f:
@@ -211,63 +212,71 @@ class EnhancedRAGHelper:
                 }
             
             self.logger.info(f"載入完成：{len(self.chart_metadata)} 個圖表元數據")
-            return
+        else:
+            # 重建索引 - 先處理圖表描述
+            self.logger.info("建立增強型文檔...")
+            
+            all_enhanced_docs = []
+            all_chart_metadata = []
+            
+            # 處理所有PDF檔案，生成增強文檔
+            pdf_files = glob.glob(os.path.join(self.pdf_folder, "*.pdf"))
+            
+            for pdf_path in pdf_files:
+                try:
+                    enhanced_docs, chart_metadata = self.process_pdf_with_charts(pdf_path)
+                    all_enhanced_docs.extend(enhanced_docs)
+                    all_chart_metadata.extend(chart_metadata)
+                except Exception as e:
+                    self.logger.error(f"處理 {pdf_path} 時發生錯誤: {e}")
+                    continue
+            
+            if not all_enhanced_docs:
+                raise ValueError("沒有成功處理任何PDF檔案")
+            
+            # 保存圖表元數據
+            with open(metadata_path, 'w', encoding='utf-8') as f:
+                metadata_dict = {chart_id: asdict(metadata) 
+                               for chart_id, metadata in self.chart_metadata.items()}
+                json.dump(metadata_dict, f, ensure_ascii=False, indent=2)
+            
+            # 將增強文檔寫入pdf_folder，讓RAG Helper處理
+            temp_enhanced_folder = os.path.join(self.pdf_folder, "enhanced_docs")
+            os.makedirs(temp_enhanced_folder, exist_ok=True)
+            
+            for i, doc in enumerate(all_enhanced_docs):
+                temp_file = os.path.join(temp_enhanced_folder, f"enhanced_doc_{i}.txt")
+                with open(temp_file, 'w', encoding='utf-8') as f:
+                    f.write(doc.page_content)
+            
+            self.logger.info(f"增強文檔準備完成：{len(all_enhanced_docs)} 個文檔，{len(self.chart_metadata)} 個圖表")
         
-        # 重建索引
-        self.logger.info("建立增強型向量資料庫...")
+        # 委託RAG Helper進行向量化
+        self.logger.info("委託RAG Helper進行向量化...")
+        import asyncio
         
-        all_enhanced_docs = []
-        all_chart_metadata = []
-        
-        # 處理所有PDF檔案
-        pdf_files = glob.glob(os.path.join(self.pdf_folder, "*.pdf"))
-        
-        for pdf_path in pdf_files:
-            try:
-                enhanced_docs, chart_metadata = self.process_pdf_with_charts(pdf_path)
-                all_enhanced_docs.extend(enhanced_docs)
-                all_chart_metadata.extend(chart_metadata)
-            except Exception as e:
-                self.logger.error(f"處理 {pdf_path} 時發生錯誤: {e}")
-                continue
-        
-        if not all_enhanced_docs:
-            raise ValueError("沒有成功處理任何PDF檔案")
-        
-        # 切割文檔
-        self.logger.info(f"切割 {len(all_enhanced_docs)} 個增強文檔...")
-        splitter = RecursiveCharacterTextSplitter(
+        # 創建新的RAG Helper實例專門處理增強文檔
+        enhanced_rag = RAGHelper(
+            pdf_folder=self.pdf_folder,
             chunk_size=self.chunk_size,
-            chunk_overlap=self.chunk_overlap,
-            separators=["\n\n", "\n", "。", ".", " ", ""],
-            length_function=len,
+            chunk_overlap=self.chunk_overlap
         )
-        chunks = splitter.split_documents(all_enhanced_docs)
+        asyncio.run(enhanced_rag.load_and_prepare(['.pdf', '.txt']))
         
-        # 建立向量資料庫
-        self.logger.info(f"建立向量資料庫... 共 {len(chunks)} 個段落")
-        embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
-        self.vectorstore = FAISS.from_documents(chunks, embeddings)
+        # 獲取RAG Helper的vectorstore
+        self.vectorstore = enhanced_rag.vectorstore
+        self.rag_helper = enhanced_rag  # 更新引用
         
-        # 保存向量資料庫和元數據
-        self.vectorstore.save_local(enhanced_index_path)
-        
-        with open(metadata_path, 'w', encoding='utf-8') as f:
-            metadata_dict = {chart_id: asdict(metadata) 
-                           for chart_id, metadata in self.chart_metadata.items()}
-            json.dump(metadata_dict, f, ensure_ascii=False, indent=2)
-        
-        self.logger.info(f"增強型RAG系統準備完成：{len(chunks)} 個文檔段落，{len(self.chart_metadata)} 個圖表")
+        self.logger.info("增強型RAG系統準備完成")
     
     def setup_enhanced_retrieval_chain(self):
-        """設定增強型檢索鏈"""
+        """設定增強型檢索鏈 - 保持圖表支援特性"""
         
         if not self.vectorstore:
             raise ValueError("請先執行 load_and_prepare_enhanced()")
         
-        # 暫時使用Mock LLM避免API限制
-        # TODO: 未來可以切換到本地LLM或有額度的OpenAI API
-        from llm_providers import LLMManager, LLMRequest
+        # 使用Mock LLM用於測試 (未來可整合到RAG Helper的LLM切換功能)
+        from enhanced_version.backend.llm_providers_sB import LLMManager, LLMRequest
         
         class MockChatLLM:
             """模擬ChatLLM用於測試"""
@@ -294,12 +303,12 @@ class EnhancedRAGHelper:
         
         llm = MockChatLLM()  # 使用Mock LLM
         
-        # 創建檢索器
+        # 創建檢索器 - 使用RAG Helper提供的vectorstore
         retriever = self.vectorstore.as_retriever(
             search_kwargs={"k": 5}  # 檢索前5個最相關的段落
         )
         
-        # 增強的提示詞模板
+        # 增強的提示詞模板 - 專門支援圖表資訊
         system_prompt = (
             "你是一個基於增強型 RAG 系統的計算機概論家教，能夠同時理解文字內容和圖表資訊。"
             "請參考以下提供的內容來回答問題，包括文字說明和圖表描述。"
@@ -323,7 +332,7 @@ class EnhancedRAGHelper:
         question_answer_chain = create_stuff_documents_chain(llm, prompt)
         self.retrieval_chain = create_retrieval_chain(retriever, question_answer_chain)
         
-        self.logger.info("增強型檢索鏈設定完成")
+        self.logger.info("增強型檢索鏈設定完成 (向量化委託給RAG Helper，圖表功能保留)")
     
     def ask_enhanced(self, query: str) -> Tuple[str, List[Document], List[ChartMetadata]]:
         """增強型問答 - 返回答案、相關文檔和相關圖表"""
