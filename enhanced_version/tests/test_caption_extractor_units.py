@@ -14,7 +14,12 @@ import os
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from modules.pdf_Cutting_TextReplaceImage.enhanced_version.backend.caption_extractor_sA import (
+# 添加路徑
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
+from enhanced_version.backend.caption_extractor_sA import (
     CaptionExtractor, CaptionPatterns, TextBlock, CaptionCandidate,
     ReferenceMatch, PDFCaptionContextProcessor
 )

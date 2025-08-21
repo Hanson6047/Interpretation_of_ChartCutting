@@ -206,10 +206,19 @@ def interactive_validation():
     print("現在將顯示自動識別的結果，請手動確認正確性...")
     
     try:
-        from modules.pdf_Cutting_TextReplaceImage.enhanced_version.backend.caption_extractor_sA import PDFCaptionContextProcessor
+        # 添加路徑
+        import sys
+        import os
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+        
+        from enhanced_version.backend.caption_extractor_sA import PDFCaptionContextProcessor
         
         processor = PDFCaptionContextProcessor()
-        test_pdf = Path("ignore_file/test_pdf_data/sys_check_digital/計概第一章.pdf")
+        
+        # 動態計算PDF路徑
+        script_dir = Path(__file__).parent
+        project_root = script_dir.parent.parent.parent.parent
+        test_pdf = project_root / "pdfFiles" / "計概第一章.pdf"
         
         if not test_pdf.exists():
             print("❌ 測試檔案不存在")
@@ -267,7 +276,15 @@ def main():
     print("🔍 Caption 處理結果驗證工具")
     print("=" * 80)
     
-    test_pdf = Path("ignore_file/test_pdf_data/sys_check_digital/計概第一章.pdf")
+    # 添加路徑
+    import sys
+    import os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+    
+    # 動態計算PDF路徑
+    script_dir = Path(__file__).parent
+    project_root = script_dir.parent.parent.parent.parent
+    test_pdf = project_root / "pdfFiles" / "計概第一章.pdf"
     
     if not test_pdf.exists():
         print("❌ 測試檔案不存在")
@@ -290,7 +307,7 @@ def main():
     # 3. 自動處理
     print("🤖 執行自動處理...")
     try:
-        from modules.pdf_Cutting_TextReplaceImage.enhanced_version.backend.caption_extractor_sA import PDFCaptionContextProcessor
+        from enhanced_version.backend.caption_extractor_sA import PDFCaptionContextProcessor
         processor = PDFCaptionContextProcessor()
         auto_pairs = processor.process_pdf(str(test_pdf))
         print(f"✅ 自動識別 {len(auto_pairs)} 個配對結果")

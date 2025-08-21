@@ -33,8 +33,12 @@ def test_caption_extraction():
     print("=" * 60)
     
     try:
-        # 匯入模組
-        from modules.pdf_Cutting_TextReplaceImage.enhanced_version.backend.caption_extractor_sA import PDFCaptionContextProcessor
+        # 添加路徑並匯入模組
+        import sys
+        import os
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+        
+        from enhanced_version.backend.caption_extractor_sA import PDFCaptionContextProcessor
         print("✅ 模組匯入成功")
         
         # 建立處理器
@@ -45,8 +49,10 @@ def test_caption_extraction():
         )
         print("✅ 處理器建立成功")
         
-        # 測試 PDF 路徑
-        test_pdf_path = Path("../../../pdfFiles/計概第一章.pdf")
+        # 測試 PDF 路徑 (動態計算相對路徑)
+        script_dir = Path(__file__).parent
+        project_root = script_dir.parent.parent.parent.parent
+        test_pdf_path = project_root / "pdfFiles" / "計概第一章.pdf"
         
         if not test_pdf_path.exists():
             print(f"❌ 測試 PDF 檔案不存在: {test_pdf_path}")
