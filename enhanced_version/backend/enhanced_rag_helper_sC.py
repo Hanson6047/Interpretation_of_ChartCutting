@@ -25,8 +25,8 @@ from langchain_core.documents import Document
 
 # 導入我們的模組
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-from caption_extractor import PDFCaptionContextProcessor
-from llm_description_generator_v2 import LLMDescriptionGeneratorV2, DescriptionRequest
+from caption_extractor_sA import PDFCaptionContextProcessor
+from llm_description_generator_v2_sB import LLMDescriptionGeneratorV2, DescriptionRequest
 
 @dataclass
 class ChartMetadata:

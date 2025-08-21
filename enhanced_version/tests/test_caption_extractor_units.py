@@ -2,6 +2,10 @@
 Caption 擷取器單元測試
 
 測試 CaptionExtractor 和相關功能的正確性
+  - 測試個別函數功能
+  - 模擬資料測試
+  - 正則表達式驗證
+
 """
 
 import unittest
@@ -10,7 +14,7 @@ import os
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from caption_extractor import (
+from modules.pdf_Cutting_TextReplaceImage.enhanced_version.backend.caption_extractor_sA import (
     CaptionExtractor, CaptionPatterns, TextBlock, CaptionCandidate,
     ReferenceMatch, PDFCaptionContextProcessor
 )

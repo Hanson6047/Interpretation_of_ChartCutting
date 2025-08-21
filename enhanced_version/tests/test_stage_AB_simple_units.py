@@ -12,8 +12,8 @@ from datetime import datetime
 # 導入階段A和B的模組
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'backend'))
-from caption_extractor import PDFCaptionContextProcessor
-from llm_description_generator_v2 import LLMDescriptionGeneratorV2, DescriptionRequest
+from modules.pdf_Cutting_TextReplaceImage.enhanced_version.backend.caption_extractor_sA import PDFCaptionContextProcessor
+from llm_description_generator_v2_sB import LLMDescriptionGeneratorV2, DescriptionRequest
 
 def main():
     print("=== 階段A+B整合測試 ===")

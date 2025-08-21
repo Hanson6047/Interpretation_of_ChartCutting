@@ -14,10 +14,10 @@
 ```
 enhanced_version/
 ├── 📁 backend/               # 後端系統
-│   ├── enhanced_main_web.py         # FastAPI Web服務器
-│   ├── enhanced_rag_helper.py       # 增強型RAG助手（階段C）
-│   ├── llm_providers.py             # LLM提供者抽象層（階段B）
-│   └── llm_description_generator_v2.py # 描述生成器（階段B）
+│   ├── enhanced_main_web_sD.py         # FastAPI Web服務器
+│   ├── enhanced_rag_helper_sC.py       # 增強型RAG助手（階段C）
+│   ├── llm_providers_sB.py             # LLM提供者抽象層（階段B）
+│   └── llm_description_generator_v2_sB.py # 描述生成器（階段B）
 ├── 📁 frontend/              # 前端界面
 │   ├── enhanced_index.html          # HTML頁面
 │   ├── enhanced_style.css           # 界面樣式
@@ -39,7 +39,7 @@ pip install fastapi uvicorn langchain langchain-openai langchain-community faiss
 ```bash
 # 在backend目錄中啟動
 cd backend
-python enhanced_main_web.py
+python enhanced_main_web_sD.py
 ```
 
 ### 3. 訪問界面
@@ -48,10 +48,10 @@ python enhanced_main_web.py
 ## 🔧 依賴的基礎模組
 
 增強版依賴於同一目錄下的基礎模組：
-- `caption_extractor.py` - 階段A功能
+- `caption_extractor_sA.py` - 階段A功能
 - `dto.py` - 資料結構定義
 - `interfaces.py` - 介面定義
-- `quick_test.py` - 基礎測試
+- `test_stage_A_complete.py` - 階段A完整測試
 
 ## 📊 功能特色
 

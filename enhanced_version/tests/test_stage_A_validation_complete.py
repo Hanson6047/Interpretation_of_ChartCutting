@@ -206,7 +206,7 @@ def interactive_validation():
     print("現在將顯示自動識別的結果，請手動確認正確性...")
     
     try:
-        from caption_extractor import PDFCaptionContextProcessor
+        from modules.pdf_Cutting_TextReplaceImage.enhanced_version.backend.caption_extractor_sA import PDFCaptionContextProcessor
         
         processor = PDFCaptionContextProcessor()
         test_pdf = Path("ignore_file/test_pdf_data/sys_check_digital/計概第一章.pdf")
@@ -290,7 +290,7 @@ def main():
     # 3. 自動處理
     print("🤖 執行自動處理...")
     try:
-        from caption_extractor import PDFCaptionContextProcessor
+        from modules.pdf_Cutting_TextReplaceImage.enhanced_version.backend.caption_extractor_sA import PDFCaptionContextProcessor
         processor = PDFCaptionContextProcessor()
         auto_pairs = processor.process_pdf(str(test_pdf))
         print(f"✅ 自動識別 {len(auto_pairs)} 個配對結果")

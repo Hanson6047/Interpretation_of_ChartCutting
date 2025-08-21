@@ -34,7 +34,7 @@ def test_caption_extraction():
     
     try:
         # 匯入模組
-        from caption_extractor import PDFCaptionContextProcessor
+        from modules.pdf_Cutting_TextReplaceImage.enhanced_version.backend.caption_extractor_sA import PDFCaptionContextProcessor
         print("✅ 模組匯入成功")
         
         # 建立處理器
@@ -46,7 +46,7 @@ def test_caption_extraction():
         print("✅ 處理器建立成功")
         
         # 測試 PDF 路徑
-        test_pdf_path = Path("ignore_file/test_pdf_data/sys_check_digital/計概第一章.pdf")
+        test_pdf_path = Path("../../../pdfFiles/計概第一章.pdf")
         
         if not test_pdf_path.exists():
             print(f"❌ 測試 PDF 檔案不存在: {test_pdf_path}")
@@ -119,7 +119,7 @@ def test_pattern_matching():
     print("=" * 60)
     
     try:
-        from caption_extractor import CaptionExtractor
+        from modules.pdf_Cutting_TextReplaceImage.enhanced_version.backend.caption_extractor_sA import CaptionExtractor
         
         extractor = CaptionExtractor()
         

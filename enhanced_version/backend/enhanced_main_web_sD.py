@@ -26,7 +26,7 @@ from contextlib import asynccontextmanager
 # 導入增強型RAG系統
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from enhanced_rag_helper import EnhancedRAGHelper, ChartMetadata
+from modules.pdf_Cutting_TextReplaceImage.enhanced_version.backend.enhanced_rag_helper_sC import EnhancedRAGHelper, ChartMetadata
 
 # 載入環境變數
 load_dotenv()

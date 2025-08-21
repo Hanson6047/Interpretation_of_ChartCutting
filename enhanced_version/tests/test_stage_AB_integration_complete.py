@@ -10,7 +10,7 @@ import json
 from datetime import datetime
 
 # 導入階段A和B的模組
-from caption_extractor import PDFCaptionContextProcessor
+from modules.pdf_Cutting_TextReplaceImage.enhanced_version.backend.caption_extractor_sA import PDFCaptionContextProcessor
 from llm_description_generator import LLMDescriptionGenerator, DescriptionRequest
 
 def test_stage_ab_integration():

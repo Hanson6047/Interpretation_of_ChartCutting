@@ -176,7 +176,7 @@ def compare_with_auto_results():
     print("=" * 60)
     
     try:
-        from caption_extractor import PDFCaptionContextProcessor
+        from modules.pdf_Cutting_TextReplaceImage.enhanced_version.backend.caption_extractor_sA import PDFCaptionContextProcessor
         
         processor = PDFCaptionContextProcessor()
         pdf_path = Path("ignore_file/test_pdf_data/sys_check_digital/計概第一章.pdf")

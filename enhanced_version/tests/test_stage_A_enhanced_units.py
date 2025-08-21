@@ -8,7 +8,7 @@ import sys
 import os
 
 # 直接導入本地模組
-from caption_extractor import PDFCaptionContextProcessor
+from modules.pdf_Cutting_TextReplaceImage.enhanced_version.backend.caption_extractor_sA import PDFCaptionContextProcessor
 
 def test_stage_a_functionality():
     """測試階段A的Caption識別功能"""
@@ -72,7 +72,7 @@ def test_caption_patterns():
     print("\n🔧 測試Caption識別模式")
     print("-" * 30)
     
-    from caption_extractor import CaptionPatterns
+    from modules.pdf_Cutting_TextReplaceImage.enhanced_version.backend.caption_extractor_sA import CaptionPatterns
     
     test_cases = [
         "圖1-1 中國的算盤",
