@@ -1031,4 +1031,128 @@ enhanced_version/
 
 ---
 
+## 📅 2025-08-21 (三) - Enhanced RAG Helper 整合重構
+
+### 🎯 今日主要成果
+- [x] 重構Enhanced RAG Helper整合RAG Helper向量化功能
+- [x] 移除重複的向量化代碼，建立清楚分工架構
+- [x] 成功測試圖表處理功能（29個圖表）
+- [x] 優化LLM fallback機制和embeddings配置
+- [x] 完成Git提交與代碼整理
+
+### 🏗️ 架構重構
+#### Enhanced RAG Helper 整合設計
+```
+Enhanced RAG Helper (階段C)
+├── 圖表處理 (Caption提取 + LLM描述生成) ✅
+├── 增強文檔創建 (原文 + 圖表說明) ✅
+└── 委託 RAG Helper
+    ├── 文字切割 (RecursiveCharacterTextSplitter) ✅
+    ├── 向量化 (OpenAI/HuggingFace/Fake Embeddings) ✅
+    └── FAISS索引建立與保存 🔄
+```
+
+### 💻 程式改動
+#### 重構檔案
+- `enhanced_rag_helper_sC.py` - 整合RAG Helper進行向量化
+  - 新增RAG Helper導入和整合邏輯
+  - 移除重複的向量化和FAISS建立代碼
+  - 修改`load_and_prepare_enhanced`方法委託向量化工作
+  - 優化embeddings fallback：HuggingFace → OpenAI → FakeEmbeddings
+- `llm_description_generator_v2_sB.py` - 修正import路徑
+- 測試腳本重組：
+  - `test_stage_C_legacy.py` (舊版，保留參考)
+  - `test_stage_C_complete.py` (新整合版)
+
+### 🧪 測試結果
+- ✅ Enhanced RAG Helper與RAG Helper整合成功
+- ✅ 圖表處理功能正常：29個圖表（計概第一章）
+- ✅ Mock LLM描述生成：100%成功率，2779 tokens
+- ✅ 向量化委託機制運作正常
+- ⚠️ 發現問題：缺少伴生索引檔案生成
+
+### 🔧 發現的問題
+#### 伴生索引生成問題
+- **現狀**：RAG Helper生成`my_faiss_index/`，Enhanced RAG需要`enhanced_faiss_index/`
+- **缺失**：`chart_metadata.json`會生成，但`enhanced_faiss_index/`未正確保存
+- **原因**：整合後缺少將RAG Helper的vectorstore重新保存為Enhanced格式
+
+#### 當前流程
+1. ✅ 階段A+B整合 - 圖表Caption提取 + 描述生成
+2. ✅ 增強文檔創建 - 原始文字 + 圖表描述  
+3. ✅ 圖表元數據保存 - `chart_metadata.json`
+4. ✅ 委託RAG Helper - 向量化處理
+5. ❌ **缺失**：重新保存為`enhanced_faiss_index/`
+
+### 📊 整合效益
+- **維護性提升** - 向量化代碼統一在RAG Helper中
+- **功能專精** - Enhanced RAG Helper專注圖表功能  
+- **代碼復用** - 利用現有RAG Helper成熟功能
+- **擴展性好** - 未來可輕鬆添加新文檔類型支援
+
+### 🔄 待辦事項
+#### 立即處理
+- [ ] 修復Enhanced RAG Helper伴生索引生成問題
+  - 在RAG Helper向量化完成後，保存為`enhanced_faiss_index/`
+  - 確保`test_stage_C_complete.py`執行完整的`load_and_prepare_enhanced`
+- [ ] 驗證完整的檔案生成功能
+
+#### 中期規劃  
+- [ ] RAG Helper LLM切換功能開發
+  - 支援Mock LLM/本地LLM/付費LLM輕鬆切換
+  - 統一Enhanced RAG Helper和RAG Helper的LLM管理
+- [ ] 完善測試覆蓋率
+- [ ] 優化錯誤處理和日誌記錄
+
+### 📋 結合progress_tracking.md的完整狀態更新
+
+#### ✅ **新策略進度更新** *(基於會議決議)*
+- ✅ **新階段 A：Caption 與內文關鍵字檢索** - **已完成**
+  - 完成PDF Caption識別功能（29個圖表識別）
+  - 完成內文關鍵字搜尋機制（7個引用配對）
+  - 建立圖文配對資料結構與高品質配對演算法
+  
+- ✅ **新階段 B：LLM API 圖表描述生成** - **已完成**
+  - 整合Mock LLM和多種LLM提供者支援
+  - 實現批次圖表描述生成（100%成功率）
+  - 建立信心度評估機制（0.3-0.7範圍）
+  
+- 🔄 **新階段 C：文檔重組與向量化整合** - **部分完成**
+  - ✅ 設計文檔重組策略，整合圖表描述到原文
+  - ✅ 與RAG_Helper.py整合，委託向量化工作
+  - ✅ 調整Chunk切割策略，保持描述完整性
+  - ❌ **待修復**：伴生索引檔案生成問題
+  
+- ⏳ **新階段 D：問答展示整合** - **待開始**
+  - 前端展示邏輯修改（支援圖文混合）
+  - 圖表檔案存取機制建立
+  - 使用者界面設計與整合
+
+#### 🎯 **架構演進總結**
+```
+階段A (Caption提取) ✅ → 階段B (描述生成) ✅ → 階段C (向量整合) 🔄 → 階段D (展示整合) ⏳
+     29個圖表識別        Mock LLM 2779 tokens      RAG Helper委託      前端圖文展示
+     7個引用配對         100%生成成功率            架構整合完成         待開發
+```
+
+#### 💡 **技術創新亮點**
+- **智能圖文配對**：成功實現Caption與內文的自動關聯
+- **架構整合設計**：Enhanced RAG Helper + RAG Helper分工明確
+- **多層LLM支援**：Mock/本地/付費LLM無縫切換機制
+- **向量化委託**：避免代碼重複，提升維護性
+
+### 🎯 下次計劃
+- [ ] 解決伴生索引生成問題
+- [ ] 實作RAG Helper的LLM切換機制
+- [ ] 進行完整的端到端測試
+- [ ] 準備階段D的設計規劃
+
+### 💭 技術筆記
+- Git commit已完成（🔧標記重構）並正確設定`.gitignore`
+- 整合架構清晰：圖表處理vs向量化分工明確
+- embeddings自動fallback機制避免API依賴問題
+- 成功證明階段ABC整合的可行性
+
+---
+
 *📝 本日誌將持續更新，記錄每日的開發進度和技術決策...*
